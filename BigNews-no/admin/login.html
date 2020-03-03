@@ -37,6 +37,25 @@
       </form>
     </div>
   </div>
+  <!-- 模态框 -->
+  <div class="modal fade" tabindex="-1" role="dialog" id="myModal">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+              aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title">登入提示</h4>
+        </div>
+        <div class="modal-body">
+          <p>&hellip;</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">确认</button>
+          <!-- <button type="button" class="btn btn-primary">Save changes</button> -->
+        </div>
+      </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+  </div><!-- /.modal -->
   <script>
     /*
       1.给表单按钮设置点击事件
@@ -56,19 +75,34 @@
         let password = $('.input_pass').val();
         console.log(userName);
         // 4.ajax发送请求
-        // $.ajax({
-        //   url: 'http://localhost:8080/api/v1/admin/user/login',
-        //   type: 'post',
-        //   dataType: 'json',
-        //   data: {
-        //     username: userName,
-        //     password: password
-        //   },
-        //   success: function (backData) {
-        //     // 5.响应请求
-        //     console.log(backData);
-        //   }
-        // });
+        $.ajax({
+          url: 'http://localhost:8080/api/v1/admin/user/login',
+          type: 'post',
+          dataType: 'json',
+          data: {
+            username: userName,
+            password: password
+          },
+          success: function (backData) {
+            // 5.响应请求
+            // console.log(backData);
+            if (backData.code == 200) {
+              // 登入提示
+              $('.modal-body>p').text(backData.msg);
+              // 显示模态框
+              $('#myModal').modal();
+              // 只要触发了这个模态框事件 才会执行里面的代码
+              $('#myModal').on('hidden.bs.modal', function (e) {
+                window.location.href = './index.html';
+              })
+            } else {
+              // 登入提示
+              $('.modal-body>p').text(backData.msg);
+              // 显示模态框
+              $('#myModal').modal();
+            }
+          }
+        });
       })
     })
   </script>
