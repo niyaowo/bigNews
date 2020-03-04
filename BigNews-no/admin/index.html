@@ -27,20 +27,23 @@
         </div>
         <!-- 左侧导航栏 -->
         <div class="menu">
-            <div class="level01 active"><a href="#" target="main_frame"><i
+            <div class="level01 active"><a href="main_count.html" target="main_frame"><i
                         class="iconfont icon-yidiandiantubiao04"></i><span>首页</span></a></div>
             <div class="level01"><a href="#"><i class="iconfont icon-icon-article"></i><span>文章管理</span><b
                         class="iconfont icon-arrowdownl"></b></a></div>
             <ul class="level02">
-                <li><a href="#" target="main_frame"><i class="iconfont icon-previewright"></i><span>文章列表</span></a></li>
-                <li><a href="#" target="main_frame"><i class="iconfont icon-previewright"></i><span>发表文章</span></a></li>
-                <li><a href="#" target="main_frame"><i class="iconfont icon-previewright"></i><span>文章类别管理</span></a>
+                <li><a href="article_list.html" target="main_frame"><i
+                            class="iconfont icon-previewright"></i><span>文章列表</span></a></li>
+                <li><a href="article_release.html" target="main_frame"><i
+                            class="iconfont icon-previewright"></i><span>发表文章</span></a></li>
+                <li><a href="article_category.html" target="main_frame"><i
+                            class="iconfont icon-previewright"></i><span>文章类别管理</span></a>
                 </li>
             </ul>
 
-            <div class="level01"><a href="#" target="main_frame"><i
+            <div class="level01"><a href="comment_list.html" target="main_frame"><i
                         class="iconfont icon-comment"></i><span>评论管理</span></a></div>
-            <div class="level01" id="user"><a href="#" target="main_frame"><i
+            <div class="level01" id="user"><a href="./user.html" target="main_frame"><i
                         class="iconfont icon-user"></i><span>个人中心</span></a></div>
         </div>
         <!-- 顶部栏 -->
@@ -53,21 +56,54 @@
         </div>
         <!-- 右侧主体内容 -->
         <div class="main" id="main_body">
-
+            <!-- 使用iframe标签嵌套多个页面 -->
+            <iframe src="main_count.html" frameborder="0" name="main_frame" style="width: 100%;height: 100%;"></iframe>
         </div>
     </div>
+    <!-- 模态框 -->
+    <div class="modal fade" tabindex="-1" role="dialog" id="myModal">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">退出登入提示</h4>
+                </div>
+                <div class="modal-body">
+                    <p>&hellip;</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default " data-dismiss="modal">确认</button>
+                    <!-- <button type="button" class="btn btn-primary outSuer" data-dismiss="modal">确认</button> -->
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
     <script>
         // 入口函数
         $(function () {
 
-            // 设置全局请求头
-            /* 
-              1.  $.ajaxSetup() : 为所有的AJAX请求设置默认值
-              2.  beforeSend(xhr):	发送请求前运行的函数。(这个方法可以根据后台需求设置一些固定请求头)
-              */
+            // // 设置全局请求头
+            // /* 
+            //   1.  $.ajaxSetup() : 为所有的AJAX请求设置默认值
+            //   2.  beforeSend(xhr):	发送请求前运行的函数。(这个方法可以根据后台需求设置一些固定请求头)
+            //   */
             $.ajaxSetup({
                 beforeSend(xhr) {
                     xhr.setRequestHeader("Authorization", localStorage.getItem('token'))
+                },
+                // 拓展
+                error(xhr, status, error) {//请求错误的时候会进入这个方法进行拦截
+                    console.log(xhr.responseText);
+                    console.log(status);//错误状态
+                    console.log(error);//错误信息
+                    if (error == 'Forbidden') {//用户未登录
+                        alert('请先登录！')
+                        window.location = './login.html';//跳转登陆页面
+                    } else if (error == 'Not Found') {
+                        //跳转404页面
+                        window.location.href = './404.html';
+                    };
                 }
             })
             // 登入后台面一加载请求Ajax获取用户数据
@@ -84,12 +120,47 @@
                 }
             });
 
+            // // 取消退出按钮
+            // $('.btn-primary').click(function () {
+            //     $('.logout').remove('click');
+            // })
             // 退出页面
             $('.logout').click(function () {
-                // 1.清除token权限
-                localStorage.removeItem('token');
-                // 2.返回登入页面
-                window.location.href = './login.html';
+                // 确认退出
+                $('.modal-body>p').text('确定要退出嘛?');
+                $('#myModal').modal();
+                // 模态框事件
+                // 只要触发了这个模态框事件 才会执行里面的代码
+                $('#myModal').on('hidden.bs.modal', function (e) {
+                    // 1.清除token权限
+                    localStorage.removeItem('token');
+                    // 2.返回登入页面
+                    window.location.href = './login.html';
+                })
+            })
+
+            // 左侧事件点击
+            $('.level01').click(function () {
+                // 添加类名 实现背景颜色切换交互
+                $(this).addClass('active').siblings().removeClass('active');
+
+                // 判断点击对象显示二级菜单
+                // 还有一种判断方法：$(this).next.hasClass('.level02');  判断是否有这个类名
+                if ($(this).index() == 1) {
+                    // slideToggle动画切换
+                    $('.level02').slideToggle();
+                    // 类名切换
+                    $('.iconfont').toggleClass('rotate0');
+                    // 默认第一个显示 有些dom对象有click事件 和jq的click事件有点区别 
+                    // 原生的可以触发注册事件和默认事件 而jq不能触发默认事件
+                    $('.level02>li:eq(0) a')[0].click();
+                } else {
+                    $('.level02>li').removeClass('active');
+                }
+            });
+            // 二级列表点击事件
+            $('.level02>li').click(function () {
+                $(this).addClass('active').siblings().removeClass('active');
             })
         })
     </script>

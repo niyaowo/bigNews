@@ -170,6 +170,7 @@ body{
     margin-right:20px;
     font-weight:normal;
     transform:rotate(90deg);
+    /* 状态改变触发 */
     transition:all 500ms ease;
 }
 
