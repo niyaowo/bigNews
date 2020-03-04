@@ -13,6 +13,8 @@
     <script src="./libs/jquery-1.12.4.min.js"></script>
     <!-- 导入bootstrap的js文件 -->
     <script src="./libs/bootstrap/js/bootstrap.min.js"></script>
+    <!-- 引入接地址 -->
+    <script src="./js/http.js"></script>
 </head>
 
 <body>
@@ -54,5 +56,43 @@
 
         </div>
     </div>
+    <script>
+        // 入口函数
+        $(function () {
+
+            // 设置全局请求头
+            /* 
+              1.  $.ajaxSetup() : 为所有的AJAX请求设置默认值
+              2.  beforeSend(xhr):	发送请求前运行的函数。(这个方法可以根据后台需求设置一些固定请求头)
+              */
+            $.ajaxSetup({
+                beforeSend(xhr) {
+                    xhr.setRequestHeader("Authorization", localStorage.getItem('token'))
+                }
+            })
+            // 登入后台面一加载请求Ajax获取用户数据
+            $.ajax({
+                url: bigNew.user_info,
+                type: 'get',
+                dataType: 'json',
+                success: function (backData) {
+                    // console.log(backData);
+                    // 渲染页面用户信息
+                    $('.user_info img').attr('src', backData.data.userPic);
+                    $('.user_info span').text('欢迎  ' + backData.data.nickname);
+                    $('.user_center_link img').attr('src', backData.data.userPic);
+                }
+            });
+
+            // 退出页面
+            $('.logout').click(function () {
+                // 1.清除token权限
+                localStorage.removeItem('token');
+                // 2.返回登入页面
+                window.location.href = './login.html';
+            })
+        })
+    </script>
 </body>
+
 </html>
