@@ -51,5 +51,162 @@
             </table>
         </div>
     </div>
+    <!-- 引擎摸版 -->
+    <script id="category_modal" type="text/html">
+        {{each data v}}
+        <tr>
+            <td>{{v.name}}</td>
+            <td>{{v.slug}}</td>
+            <td class="text-center">
+                <a href="javascript:vode(0);" data_id="{{v.id}}" data-toggle="modal" data-target="#myModal" class=" btn btn-info btn-xs">编辑</a>
+                <a href="javascript:vode(0);" data_id="{{v.id}}" class="btn btn-danger btn-xs btn_delte">删除</a>
+            </td>
+        </tr>
+        {{/each}}
+    
+    </script>
+    <!-- 模态框 -->
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="exampleModalLabel">新增分类</h4>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="form-group">
+                            <label for="recipient-name" class="control-label">分类名称：</label>
+                            <input type="text" class="form-control" id="recipient-name">
+                        </div>
+                        <div class="form-group">
+                            <label for="message-text" class="control-label">分类备注：</label>
+                            <input class="form-control" id="message-text">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" id='fasle' data-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary btn_confirm">确定</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="./js/http.js"></script>
+    <script>
+        $(function () {
+            // 加载数据
+            $.ajax({
+                url: bigNew.category_list,
+                type: 'get',
+                dataType: 'json',
+                success: function (backData) {
+                    // console.log(backData);
+                    $('.table tbody').html(template('category_modal', backData));
+                }
+            });
+
+            // 模态框复用
+            $('#myModal').on('show.bs.modal', function (e) {
+                // console.log(e.relatedTarget);
+                if ($(e.relatedTarget).text() == '新增分类') {
+                    $('#myModal .btn_confirm').text('新增');
+                } else {
+                    // 修改按钮文字
+                    $('#myModal .btn_confirm').text('编辑');
+                    // 表单编辑内容
+                    $('#recipient-name').val($(e.relatedTarget).parent().prev().prev().text());
+                    $('#message-text').val($(e.relatedTarget).parent().prev().text());
+                    // 获取被点对象的id值
+                    $('#myModal .btn_confirm').attr('data_id', $(e.relatedTarget).attr('data_id'));
+                }
+            });
+
+            // 模态框取消按钮事件
+            $('#fasle').click(function () {
+                // 重置表单
+                $('form')[0].reset();
+            });
+            // 模态框确认按钮
+            $('#myModal .btn_confirm').click(function () {
+                if ($(this).text() == '新增') {
+                    // 执行新增ajax接口
+                    $.ajax({
+                        url: bigNew.category_add,
+                        type: 'post',
+                        dataType: 'json',
+                        data: {
+                            name: $('#recipient-name').val(),
+                            slug: $('#message-text').val()
+                        },
+                        success: function (backData) {
+                            // console.log(backData);
+                            if (backData.code == 201) {
+                                alert(backData.msg);
+                                // 刷新页面
+                                window.location.reload();
+                            } else {
+                                alert(backData.msg);
+                            }
+                        }
+                    });
+                } else {
+                    $.ajax({
+                        url: bigNew.category_edit,
+                        type: 'post',
+                        dataType: 'json',
+                        data: {
+                            id: $(this).attr('data_id'),
+                            name: $('#recipient-name').val(),
+                            slug: $('#message-text').val()
+                        },
+                        success: function (backData) {
+                            // console.log(backData);
+                            if (backData.code == 200) {
+                                alert(backData.msg);
+                                // 刷新当前页面
+                                window.location.reload();
+                            } else {
+                                alert(backData.msg);
+                            }
+                        }
+                    });
+                }
+            })
+
+            // 删除按钮事件
+            /*
+                tr和他里面的内容都是动态添加的，所以要对里面的对象事件注册委托事件
+                删除键就是tr里面的对象 
+                应该给tr父级以上注册事件 冒泡子级
+            */
+            $('tbody').on('click', '.btn_delte', function (e) {
+                console.log(this);
+                // 去掉默认事件
+                e.preventDefault();
+                // ajax请求
+                $.ajax({
+                    url: bigNew.category_delete,
+                    type: 'post',
+                    dataType: 'json',
+                    data: { id: $(this).attr('data_id') },
+                    success: function (backData) {
+                        console.log(backData);
+                        if (backData.code == 204) {
+                            alert(backData.msg);
+                            // 刷新当前页面
+                            window.location.reload();
+                        } else {
+                            alert(backData.msg);
+                        }
+                    }
+                });
+            })
+        })
+
+    </script>
+</body>
 
 </html>
