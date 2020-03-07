@@ -135,7 +135,7 @@
                         // 模板引擎
                         $('.table>tbody').html(template('art_list', backData));
                         // 分页插件的渲染
-                        $(pagination).twbsPagination('destroy');  // 清除旧的分页插件
+                        $('#pagination').twbsPagination('destroy');  // 清除旧的分页插件
                         $('#pagination').twbsPagination({
                             totalPages: backData.data.totalPage,  // 类型文章的页数
                             visiblePages: 10,    // 可见页数上限
