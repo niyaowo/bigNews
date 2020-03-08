@@ -104,7 +104,7 @@
     <script src="./js/http.js"></script>
     <script>
         $(function () {
-            // 页面加载文章列表分类
+            // 1.页面加载文章列表分类
             $.ajax({
                 url: bigNew.category_list,
                 type: 'get',
@@ -116,7 +116,7 @@
                 }
             });
 
-            // 筛选按钮功能
+            // 2.筛选按钮功能
             $('#btnSearch').click(function (e) {
                 // 注意点：筛选按钮是表单控件 它有默认跳转事件行为 要阻止他
                 e.preventDefault();
@@ -154,7 +154,7 @@
                 });
             });
 
-            // 分页插件的点击事件
+            // 3.分页插件的点击事件
             function getPage(nowPage) {
                 $.ajax({
                     url: bigNew.article_query,
@@ -174,8 +174,33 @@
                 })
             }
 
-            // 加载文章列表
+            // 4.加载文章列表
             $('#btnSearch').click();
+
+            // 5.发表文章
+            $('#release_btn').click(function () {
+                $('.level02 li:eq(1)', window.parent.document).addClass('active').siblings().removeClass('active');
+            });
+
+            // 6.删除文章功能
+            // 删除按钮是动态生成的 需要注册委托事件
+            $('.table tbody').on('click', '.delete', function () {
+                $.ajax({
+                    url: bigNew.article_delete,
+                    type: 'post',
+                    dataType: 'json',
+                    data: {
+                        id: $(this).attr('data_id'),
+                    },
+                    success: function (backData) {
+                        if (backData.code == 204) {
+                            alert(backData.msg);
+                        };
+                        // 刷新当前1页面
+                        window.location.reload();
+                    }
+                });
+            })
         })
     </script>
 </body>
