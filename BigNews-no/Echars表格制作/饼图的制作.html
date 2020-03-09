@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="./echarts.js"></script>
+</head>
+
+<body>
+    <!-- 为ECharts准备一个具备大小（宽高）的Dom -->
+    <div id="main" style="width: 600px;height:400px;"></div>
+    <script type="text/javascript">
+
+        // 声明两个数组保存日期/访问量
+        let names = [];
+        let count = [];
+        // 1.创建小黄人
+        let xhr = new XMLHttpRequest();
+        // 2.设置请求方式和参数
+        xhr.open('get', 'http://localhost:8080/api/v1/admin/data/category')
+        // 获取token权限
+        xhr.setRequestHeader('Authorization', 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjoiYWRtaW4iLCJleHAiOjIxODgyNTU0NTQsImlhdCI6MTU4MzQ1NTQ1NX0.T7dt49Ym1y4pXX_BQkyzfLhWJGwIP5BbbaTuuP5L-V8cvtJ0ziYTRBj2aEQxjnJHYLCoHRl36w6atvZi2GKIOgY0sDNc0CyVjjblcdNpiVb-HOQQ0cEsDFDUlVl87vPf6fG7GfhM1F4QvfOSOkYIsjGo3A1ooGjcIVppd0P7NEk')
+        // 3.发送请求
+        xhr.send();
+        // 4.ajax响应
+        xhr.onload = function () {
+            // console.log(xhr.responseText);
+            // 将请求文转换成JSON格式
+            let backData = JSON.parse(xhr.responseText);
+            console.log(backData);
+            // 开始遍历数组获取对象属性值
+
+            for (i = 0; i < backData.date.length; i++) {
+                // console.log(backData.date[i]);
+                names.push(backData.date[i].name);
+                count.push(backData.date[i].articles);
+            };
+            console.log(names);
+            console.log(count);
+            zhexian(names, count, backData.date);
+        };
+        // 指定图表的配置项和数据
+        function zhexian(date, count, backData) {
+
+            // 基于准备好的dom，初始化echarts实例
+            var myChart = echarts.init(document.getElementById('main'));
+            option = {
+                // 标题
+                title: {
+                    text: '分类文章数量比',
+                    left: 'center',
+                    textStyle: {
+                        fontSize: 20,
+                    }
+                },
+                tooltip: {
+                    trigger: 'item',
+                    formatter: '{a} <br/>{b}: {c} ({d}%)'
+                },
+                legend: {
+                    // orient: 'vertical',
+                    top: '30',
+                    left: 'center',
+                    textStyle: {
+                        fontSize: 16,
+                    },
+                    data: names
+                },
+                series: [
+                    {
+                        name: '访问来源',
+                        type: 'pie',
+                        radius: ['50%', '70%'],
+                        // avoidLabelOverlap: false,
+
+                        data: [
+                            { value: 335, name: '直接访问' },
+                            { value: 310, name: '邮件营销' },
+                            { value: 234, name: '联盟广告' },
+                            { value: 135, name: '视频广告' },
+                            { value: 1548, name: '搜索引擎' }
+                        ]
+                    }
+                ]
+            };
+
+            // 使用刚指定的配置项和数据显示图表。
+            myChart.setOption(option);
+        }
+
+    </script>
+</body>
+
+</html>

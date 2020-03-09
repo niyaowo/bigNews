@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="./echarts.js"></script>
+</head>
+
+<body>
+    <!-- 为ECharts准备一个具备大小（宽高）的Dom -->
+    <div id="main" style="width: 600px;height:400px;"></div>
+    <script type="text/javascript">
+        // 基于准备好的dom，初始化echarts实例
+        // var myChart = echarts.init(document.getElementById('main'));
+
+        // var base = +new Date(1968, 9, 3);
+        // var oneDay = 24 * 3600 * 1000;
+        // var date = [];
+
+        // var data = [Math.random() * 300];
+
+        // for (var i = 1; i < 15; i++) {
+        //     var now = new Date(base += oneDay);
+        //     date.push([now.getFullYear(), now.getMonth() + 1, now.getDate()].join('/'));
+        //     data.push(Math.round((Math.random() - 0.5) * 20 + data[i - 1]));
+        // }
+
+        // 声明两个数组保存日期/访问量
+        let date = [];
+        let count = [];
+        // 1.创建小黄人
+        let xhr = new XMLHttpRequest();
+        // 2.设置请求方式和参数
+        xhr.open('get', 'http://localhost:8080/api/v1/admin/data/article')
+        // 获取token权限
+        xhr.setRequestHeader('Authorization', 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjoiYWRtaW4iLCJleHAiOjIxODgyNTU0NTQsImlhdCI6MTU4MzQ1NTQ1NX0.T7dt49Ym1y4pXX_BQkyzfLhWJGwIP5BbbaTuuP5L-V8cvtJ0ziYTRBj2aEQxjnJHYLCoHRl36w6atvZi2GKIOgY0sDNc0CyVjjblcdNpiVb-HOQQ0cEsDFDUlVl87vPf6fG7GfhM1F4QvfOSOkYIsjGo3A1ooGjcIVppd0P7NEk')
+        // 3.发送请求
+        xhr.send();
+        // 4.ajax响应
+        xhr.onload = function () {
+            // console.log(xhr.responseText);
+            // 将请求文转换成JSON格式
+            let backData = JSON.parse(xhr.responseText);
+            console.log(backData);
+            // 开始遍历数组获取对象属性值
+
+            for (i = 0; i < backData.date.length; i++) {
+                // console.log(backData.date[i]);
+                date.push(backData.date[i].date);
+                count.push(backData.date[i].count);
+            };
+            zhexian(date, count);
+        };
+
+        function zhexian(date, count) {
+            var myChart = echarts.init(document.getElementById('main'));
+            option = {
+                tooltip: {
+                    trigger: 'axis',
+                    position: function (pt) {
+                        return [pt[0], '10%'];
+                    }
+                },
+                // 标题
+                title: {
+                    left: 'center',
+                    text: '月新增文章数',
+                },
+                // 工具栏
+                toolbox: {
+                    show: true,
+                    feature: {
+                        dataZoom: {
+                            yAxisIndex: 'none'
+                        },
+                        dataView: { readOnly: false },
+                        magicType: { type: ['line', 'bar'] },
+                        restore: {},
+                        saveAsImage: {}
+                    }
+                },
+                // 图列
+                legend: {
+                    data: ['新增文章数'],
+                    top: 30,
+                },
+                // x轴
+                xAxis: {
+                    type: 'category',
+                    name: '日',
+                    boundaryGap: false,
+                    data: date
+                },
+                // y轴
+                yAxis: {
+                    type: 'value',
+                    boundaryGap: [0, '100%']
+                },
+                // 表格内容
+                series: [
+                    {
+                        name: '新增文章数',
+                        type: 'line',
+                        smooth: true,
+                        // symbol: 'none',
+                        sampling: 'average',
+                        itemStyle: {
+                            color: 'rgb(255, 70, 131)'
+                        },
+                        areaStyle: {
+                            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
+                                offset: 0,
+                                color: 'rgb(240, 158, 68)'
+                            }, {
+                                offset: 1,
+                                color: 'rgb(255, 255, 252)'
+                            }])
+                        },
+                        data: count
+                    }
+                ]
+            };
+
+            // 使用刚指定的配置项和数据显示图表。
+            myChart.setOption(option);
+
+        }
+
+    </script>
+</body>
+
+</html>
